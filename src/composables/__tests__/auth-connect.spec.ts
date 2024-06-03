@@ -68,20 +68,23 @@ describe('auth connect', () => {
     });
 
     it('resolves false if the refresh token is not available', async () => {
-      const { canRefresh } = useAuthConnect();
+      const { canRefresh, initializeAuthConnect } = useAuthConnect();
       (AuthConnect.isRefreshTokenAvailable as Mock).mockResolvedValue(false);
+      await initializeAuthConnect();
       expect(await canRefresh()).toEqual(false);
     });
 
     it('resolves true if the token is available', async () => {
-      const { canRefresh } = useAuthConnect();
+      const { canRefresh, initializeAuthConnect } = useAuthConnect();
       (AuthConnect.isRefreshTokenAvailable as Mock).mockResolvedValue(true);
+      await initializeAuthConnect();
       expect(await canRefresh()).toEqual(true);
     });
 
     it('resolves false if there is no access token', async () => {
-      const { canRefresh } = useAuthConnect();
+      const { canRefresh, initializeAuthConnect } = useAuthConnect();
       authResult = null;
+      await initializeAuthConnect();
       expect(await canRefresh()).toBe(false);
     });
   });
@@ -97,13 +100,15 @@ describe('auth connect', () => {
     });
 
     it('resolves the token', async () => {
-      const { getAccessToken } = useAuthConnect();
+      const { getAccessToken, initializeAuthConnect } = useAuthConnect();
+      await initializeAuthConnect();
       expect(await getAccessToken()).toEqual('the-access-token');
     });
 
     it('resolves undefined if there is no access token', async () => {
-      const { getAccessToken } = useAuthConnect();
+      const { getAccessToken, initializeAuthConnect } = useAuthConnect();
       authResult = null;
+      await initializeAuthConnect();
       expect(await getAccessToken()).toBeUndefined();
     });
   });
@@ -233,20 +238,23 @@ describe('auth connect', () => {
     });
 
     it('resolves false if the token is not expired', async () => {
-      const { isAccessTokenExpired } = useAuthConnect();
+      const { initializeAuthConnect, isAccessTokenExpired } = useAuthConnect();
       (AuthConnect.isAccessTokenExpired as Mock).mockResolvedValue(false);
+      await initializeAuthConnect();
       expect(await isAccessTokenExpired()).toEqual(false);
     });
 
     it('resolves true if the token is expired', async () => {
-      const { isAccessTokenExpired } = useAuthConnect();
+      const { initializeAuthConnect, isAccessTokenExpired } = useAuthConnect();
       (AuthConnect.isAccessTokenExpired as Mock).mockResolvedValue(true);
+      await initializeAuthConnect();
       expect(await isAccessTokenExpired()).toEqual(true);
     });
 
     it('resolves false if there is no access token', async () => {
-      const { isAccessTokenExpired } = useAuthConnect();
+      const { initializeAuthConnect, isAccessTokenExpired } = useAuthConnect();
       authResult = null;
+      await initializeAuthConnect();
       expect(await isAccessTokenExpired()).toBe(false);
     });
   });
@@ -262,20 +270,23 @@ describe('auth connect', () => {
     });
 
     it('is true when there is an auth-result and an access token is available', async () => {
-      const { isAuthenticated } = useAuthConnect();
+      const { initializeAuthConnect, isAuthenticated } = useAuthConnect();
       (AuthConnect.isAccessTokenAvailable as Mock).mockResolvedValue(true);
+      await initializeAuthConnect();
       expect(await isAuthenticated()).toBe(true);
     });
 
     it('is false when there is an auth-result and an access token is not available', async () => {
-      const { isAuthenticated } = useAuthConnect();
+      const { initializeAuthConnect, isAuthenticated } = useAuthConnect();
       (AuthConnect.isAccessTokenAvailable as Mock).mockResolvedValue(false);
+      await initializeAuthConnect();
       expect(await isAuthenticated()).toBe(false);
     });
 
     it('is false if there is no auth result', async () => {
-      const { isAuthenticated } = useAuthConnect();
+      const { initializeAuthConnect, isAuthenticated } = useAuthConnect();
       authResult = null;
+      await initializeAuthConnect();
       expect(await isAuthenticated()).toBe(false);
     });
   });
@@ -298,7 +309,8 @@ describe('auth connect', () => {
       });
 
       it('gets the config', async () => {
-        const { login } = useAuthConnect();
+        const { initializeAuthConnect, login } = useAuthConnect();
+        await initializeAuthConnect();
         await login();
         expect(Preferences.get).toHaveBeenCalledTimes(2);
         expect(Preferences.get).toHaveBeenCalledWith({
@@ -310,7 +322,8 @@ describe('auth connect', () => {
       });
 
       it('runs the init once', async () => {
-        const { login } = useAuthConnect();
+        const { initializeAuthConnect, login } = useAuthConnect();
+        await initializeAuthConnect();
         await login();
         await login();
         expect(Preferences.get).toHaveBeenCalledTimes(2);
@@ -319,7 +332,8 @@ describe('auth connect', () => {
       it('creates with Cognito', async () => {
         const { awsConfig } = useAuthConfig();
         const { providers } = useAuthProviders();
-        const { login } = useAuthConnect();
+        const { initializeAuthConnect, login } = useAuthConnect();
+        await initializeAuthConnect();
         await login();
         expect(Preferences.set).toHaveBeenCalledWith({
           key: 'auth-provider',
@@ -333,14 +347,16 @@ describe('auth connect', () => {
 
       it('performs the login', async () => {
         const { awsConfig } = useAuthConfig();
-        const { login } = useAuthConnect();
+        const { initializeAuthConnect, login } = useAuthConnect();
+        await initializeAuthConnect();
         await login();
         expect(AuthConnect.login).toHaveBeenCalledTimes(1);
         expect(AuthConnect.login).toHaveBeenCalledWith(expect.any(CognitoProvider), awsConfig);
       });
 
       it('save the auth result', async () => {
-        const { login } = useAuthConnect();
+        const { initializeAuthConnect, login } = useAuthConnect();
+        await initializeAuthConnect();
         await login();
         expect(Preferences.set).toHaveBeenCalledTimes(3);
         expect(Preferences.set).toHaveBeenCalledWith({
@@ -362,7 +378,8 @@ describe('auth connect', () => {
           const { awsConfig } = useAuthConfig();
           const { flows } = useAuthFlows();
           const { providers } = useAuthProviders();
-          const { login } = useAuthConnect();
+          const { initializeAuthConnect, login } = useAuthConnect();
+          await initializeAuthConnect();
           await login();
           expect(Preferences.set).toHaveBeenCalledWith({
             key: 'auth-provider',
@@ -384,14 +401,16 @@ describe('auth connect', () => {
 
         it('performs the login', async () => {
           const { awsConfig, webConfig } = useAuthConfig();
-          const { login } = useAuthConnect();
+          const { initializeAuthConnect, login } = useAuthConnect();
+          await initializeAuthConnect();
           await login();
           expect(AuthConnect.login).toHaveBeenCalledTimes(1);
           expect(AuthConnect.login).toHaveBeenCalledWith(expect.any(CognitoProvider), { ...awsConfig, ...webConfig });
         });
 
         it('save the auth result', async () => {
-          const { login } = useAuthConnect();
+          const { initializeAuthConnect, login } = useAuthConnect();
+          await initializeAuthConnect();
           await login();
           expect(Preferences.set).toHaveBeenCalledTimes(4);
           expect(Preferences.set).toHaveBeenCalledWith({
@@ -413,7 +432,8 @@ describe('auth connect', () => {
       });
 
       it('gets all of the things', async () => {
-        const { login } = useAuthConnect();
+        const { initializeAuthConnect, login } = useAuthConnect();
+        await initializeAuthConnect();
         await login();
         expect(Preferences.get).toHaveBeenCalledTimes(4);
         expect(Preferences.get).toHaveBeenCalledWith({
@@ -431,18 +451,20 @@ describe('auth connect', () => {
       });
 
       it('performs the login', async () => {
-        const { login } = useAuthConnect();
+        const { initializeAuthConnect, login } = useAuthConnect();
+        await initializeAuthConnect();
         await login();
         expect(AuthConnect.login).toHaveBeenCalledTimes(1);
       });
 
       it('does not perform the login if there is any auth result', async () => {
-        const { login } = useAuthConnect();
+        const { initializeAuthConnect, login } = useAuthConnect();
         authResult = JSON.stringify({
           accessToken: 'the-access-token',
           refreshToken: 'the-refresh-token',
           idToken: 'the-id-token',
         });
+        await initializeAuthConnect();
         await login();
         expect(AuthConnect.login).not.toHaveBeenCalled();
       });
@@ -460,7 +482,8 @@ describe('auth connect', () => {
     });
 
     it('performs the logout', async () => {
-      const { logout } = useAuthConnect();
+      const { initializeAuthConnect, logout } = useAuthConnect();
+      await initializeAuthConnect();
       await logout();
       expect(AuthConnect.logout).toHaveBeenCalledTimes(1);
       expect(AuthConnect.logout).toHaveBeenCalledWith(expect.any(AzureProvider), {
@@ -471,15 +494,17 @@ describe('auth connect', () => {
     });
 
     it('removes the auth result', async () => {
-      const { logout } = useAuthConnect();
+      const { initializeAuthConnect, logout } = useAuthConnect();
+      await initializeAuthConnect();
       await logout();
       expect(Preferences.remove).toHaveBeenCalledTimes(1);
       expect(Preferences.remove).toHaveBeenCalledWith({ key: 'auth-result' });
     });
 
     it('does not perform the logout if there is no auth result', async () => {
-      const { logout } = useAuthConnect();
+      const { initializeAuthConnect, logout } = useAuthConnect();
       authResult = null;
+      await initializeAuthConnect();
       await logout();
       expect(AuthConnect.logout).not.toHaveBeenCalled();
     });
@@ -496,12 +521,13 @@ describe('auth connect', () => {
     });
 
     it('performs the refresh of the session', async () => {
-      const { refresh } = useAuthConnect();
+      const { initializeAuthConnect, refresh } = useAuthConnect();
       (AuthConnect.refreshSession as Mock).mockResolvedValue({
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
         idToken: 'new-id-token',
       });
+      await initializeAuthConnect();
       await refresh();
       expect(AuthConnect.refreshSession).toHaveBeenCalledTimes(1);
       expect(AuthConnect.refreshSession).toHaveBeenCalledWith(expect.any(AzureProvider), {
@@ -512,12 +538,13 @@ describe('auth connect', () => {
     });
 
     it('saves the new auth results', async () => {
-      const { refresh } = useAuthConnect();
+      const { initializeAuthConnect, refresh } = useAuthConnect();
       (AuthConnect.refreshSession as Mock).mockResolvedValue({
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
         idToken: 'new-id-token',
       });
+      await initializeAuthConnect();
       await refresh();
       expect(Preferences.set).toHaveBeenCalledTimes(1);
       expect(Preferences.set).toHaveBeenCalledWith({
@@ -531,12 +558,13 @@ describe('auth connect', () => {
     });
 
     it('uses the new auth results', async () => {
-      const { logout, refresh } = useAuthConnect();
+      const { initializeAuthConnect, logout, refresh } = useAuthConnect();
       (AuthConnect.refreshSession as Mock).mockResolvedValue({
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
         idToken: 'new-id-token',
       });
+      await initializeAuthConnect();
       await refresh();
       await logout();
       expect(AuthConnect.logout).toHaveBeenCalledWith(expect.any(AzureProvider), {
@@ -547,8 +575,9 @@ describe('auth connect', () => {
     });
 
     it('does not refresh the session if there is no auth result', async () => {
-      const { refresh } = useAuthConnect();
+      const { initializeAuthConnect, refresh } = useAuthConnect();
       authResult = null;
+      await initializeAuthConnect();
       await refresh();
       expect(AuthConnect.refreshSession).not.toHaveBeenCalled();
     });
@@ -657,7 +686,7 @@ describe('auth connect', () => {
         await setConfig(
           providers[3],
           opt,
-          flows.find((f) => f.key === 'PKCE')
+          flows.find((f) => f.key === 'PKCE'),
         );
         expect(AuthConnect.setup).toHaveBeenCalledTimes(1);
         expect(AuthConnect.setup).toHaveBeenCalledWith({

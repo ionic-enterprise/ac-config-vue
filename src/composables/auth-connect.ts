@@ -24,7 +24,6 @@ let currentOptions: ProviderOptions | undefined;
 let currentFlow: Flow | undefined;
 let currentProvider: Provider | undefined;
 
-let initializing: Promise<void> | undefined;
 let authResult: AuthResult | undefined;
 
 let provider: Auth0Provider | AzureProvider | CognitoProvider | OktaProvider | OneLoginProvider;
@@ -60,16 +59,7 @@ const createProvider = async (): Promise<void> => {
   }
 };
 
-const initialize = (): Promise<void> => {
-  if (!initializing) {
-    initializing = new Promise((resolve) => {
-      performInitialization().then(resolve);
-    });
-  }
-  return initializing;
-};
-
-const performInitialization = async (): Promise<void> => {
+const initializeAuthConnect = async (): Promise<void> => {
   const opt = await getConfig();
   if (opt) {
     await createProvider();
@@ -112,7 +102,7 @@ const setDefaultConfigWeb = async (): Promise<void> => {
         ...awsConfig,
         ...webConfig,
       },
-      flow
+      flow,
     );
   }
 };
@@ -134,24 +124,18 @@ const setupAuthConnect = async (): Promise<void> => {
   await AuthConnect.setup(cfg);
 };
 
-// This is really just for reseting between tests
+// This is really just for resetting between tests
 const clearCache = () => {
   currentOptions = undefined;
   currentFlow = undefined;
   currentProvider = undefined;
-  initializing = undefined;
   authResult = undefined;
 };
 
-const canRefresh = async (): Promise<boolean> => {
-  await initialize();
-  return !!authResult && (await AuthConnect.isRefreshTokenAvailable(authResult));
-};
+const canRefresh = async (): Promise<boolean> =>
+  !!authResult && (await AuthConnect.isRefreshTokenAvailable(authResult));
 
-const getAccessToken = async (): Promise<string | undefined> => {
-  await initialize();
-  return authResult?.accessToken;
-};
+const getAccessToken = (): string | undefined => authResult?.accessToken;
 
 const getConfig = async (): Promise<ProviderOptions | undefined> => {
   if (!currentOptions) {
@@ -179,18 +163,13 @@ const getProvider = async (): Promise<Provider | undefined> => {
   return currentProvider;
 };
 
-const isAccessTokenExpired = async (): Promise<boolean> => {
-  await initialize();
-  return !!authResult && (await AuthConnect.isAccessTokenExpired(authResult));
-};
+const isAccessTokenExpired = async (): Promise<boolean> =>
+  !!authResult && (await AuthConnect.isAccessTokenExpired(authResult));
 
-const isAuthenticated = async (): Promise<boolean> => {
-  await initialize();
-  return !!authResult && (await AuthConnect.isAccessTokenAvailable(authResult));
-};
+const isAuthenticated = async (): Promise<boolean> =>
+  !!authResult && (await AuthConnect.isAccessTokenAvailable(authResult));
 
 const login = async (): Promise<void> => {
-  await initialize();
   if (currentOptions && !authResult) {
     authResult = await AuthConnect.login(provider, currentOptions);
     await Preferences.set({
@@ -201,7 +180,6 @@ const login = async (): Promise<void> => {
 };
 
 const logout = async (): Promise<void> => {
-  await initialize();
   if (authResult) {
     await AuthConnect.logout(provider, authResult);
     authResult = undefined;
@@ -210,7 +188,6 @@ const logout = async (): Promise<void> => {
 };
 
 const refresh = async (): Promise<void> => {
-  await initialize();
   if (authResult) {
     authResult = await AuthConnect.refreshSession(provider, authResult);
     await Preferences.set({
@@ -251,6 +228,7 @@ export const useAuthConnect = () => ({
   getConfig,
   getFlow,
   getProvider,
+  initializeAuthConnect,
   isAccessTokenExpired,
   isAuthenticated,
   login,

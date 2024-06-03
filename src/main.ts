@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import { useAuthConnect } from '@/composables/auth-connect';
 
 import { IonicVue } from '@ionic/vue';
 
@@ -24,8 +25,10 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 import './theme/styles.css';
 
-const app = createApp(App).use(IonicVue).use(router);
+const { initializeAuthConnect } = useAuthConnect();
 
-router.isReady().then(() => {
+initializeAuthConnect().then(async () => {
+  const app = createApp(App).use(IonicVue).use(router);
+  await router.isReady();
   app.mount('#app');
 });
