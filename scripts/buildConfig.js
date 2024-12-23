@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-require-imports: off */
 const { writeFile } = require('fs');
 
 const targetPath = 'src/config.ts';

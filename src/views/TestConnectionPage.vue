@@ -98,7 +98,7 @@ const handleRefresh = async (): Promise<void> => {
     await refresh();
     await checkLoginStatus();
     displayRefreshSuccess.value = true;
-  } catch (err: any) {
+  } catch {
     displayRefreshFailed.value = true;
   }
 };
@@ -106,7 +106,7 @@ const handleRefresh = async (): Promise<void> => {
 const handleAuth = async (): Promise<void> => {
   try {
     await performAuth();
-  } catch (err: any) {
+  } catch {
     displayAuthFailed.value = true;
   }
 };
