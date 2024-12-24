@@ -1,7 +1,6 @@
-npm run lint
-
 branch=`git rev-parse --abbrev-ref HEAD`
 if [ "main" = "$branch" ]; then
+  npm run lint
   npm run build:web
   npm run test:cov
 fi;
