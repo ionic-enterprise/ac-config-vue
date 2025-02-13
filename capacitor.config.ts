@@ -4,10 +4,12 @@ const config: CapacitorConfig = {
   appId: 'io.ionic.acconfigvue',
   appName: 'AC Config Tool',
   webDir: 'dist',
-  bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
       launchAutoHide: false,
+    },
+    StatusBar: {
+      overlaysWebView: false,
     },
   },
 };
