@@ -3,17 +3,15 @@ import { useAuthConnect } from '@/composables/auth-connect';
 import { useAuthFlows } from '@/composables/auth-flows';
 import { useAuthProviders } from '@/composables/auth-providers';
 import SettingsPage from '@/views/SettingsPage.vue';
-import { IonTitle, isPlatform } from '@ionic/vue';
+import { Capacitor } from '@capacitor/core';
+import { IonTitle } from '@ionic/vue';
 import { flushPromises, mount, VueWrapper } from '@vue/test-utils';
 import WrapperLike from '@vue/test-utils/dist/interfaces/wrapperLike';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { createRouter, createWebHistory, Router } from 'vue-router';
 
+vi.mock('@capacitor/core');
 vi.mock('@/composables/auth-connect');
-vi.mock('@ionic/vue', async () => {
-  const actual = (await vi.importActual('@ionic/vue')) as any;
-  return { ...actual, isPlatform: vi.fn() };
-});
 
 describe('settings page', () => {
   let router: Router;
@@ -52,7 +50,7 @@ describe('settings page', () => {
       ...flows.find((p) => p.key === 'PKCE'),
     });
 
-    (isPlatform as Mock).mockReturnValue(false);
+    (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
   });
 
   it('renders', async () => {
@@ -225,7 +223,7 @@ describe('settings page', () => {
 
       describe('on the web', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(false);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
         });
 
         it('saves the config', async () => {
@@ -238,14 +236,14 @@ describe('settings page', () => {
           expect(setConfig).toHaveBeenCalledWith(
             providers.find((p) => p.key === 'azure'),
             { ...azureConfig, ...webConfig },
-            flows.find((f) => f.key === 'implicit')
+            flows.find((f) => f.key === 'implicit'),
           );
         });
       });
 
       describe('on mobile', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(true);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(true);
         });
 
         it('saves the config', async () => {
@@ -257,7 +255,7 @@ describe('settings page', () => {
           expect(setConfig).toHaveBeenCalledWith(
             providers.find((p) => p.key === 'azure'),
             azureConfig,
-            undefined
+            undefined,
           );
         });
       });
@@ -272,7 +270,7 @@ describe('settings page', () => {
 
       describe('on web', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(false);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
         });
 
         it('saves the config', async () => {
@@ -285,14 +283,14 @@ describe('settings page', () => {
           expect(setConfig).toHaveBeenCalledWith(
             providers.find((p) => p.key === 'cognito'),
             { ...awsConfig, ...webConfig },
-            flows.find((f) => f.key === 'PKCE')
+            flows.find((f) => f.key === 'PKCE'),
           );
         });
       });
 
       describe('on mobile', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(true);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(true);
         });
 
         it('saves the config', async () => {
@@ -304,7 +302,7 @@ describe('settings page', () => {
           expect(setConfig).toHaveBeenCalledWith(
             providers.find((p) => p.key === 'cognito'),
             awsConfig,
-            undefined
+            undefined,
           );
         });
       });
@@ -319,7 +317,7 @@ describe('settings page', () => {
 
       describe('on web', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(false);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
         });
 
         it('saves the config', async () => {
@@ -332,14 +330,14 @@ describe('settings page', () => {
           expect(setConfig).toHaveBeenCalledWith(
             providers.find((p) => p.key === 'auth0'),
             { ...auth0Config, ...webConfig },
-            flows.find((f) => f.key === 'implicit')
+            flows.find((f) => f.key === 'implicit'),
           );
         });
       });
 
       describe('on mobile', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(true);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(true);
         });
 
         it('saves the config', async () => {
@@ -351,7 +349,7 @@ describe('settings page', () => {
           expect(setConfig).toHaveBeenCalledWith(
             providers.find((p) => p.key === 'auth0'),
             auth0Config,
-            undefined
+            undefined,
           );
         });
       });
@@ -366,7 +364,7 @@ describe('settings page', () => {
 
       describe('on web', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(false);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
         });
 
         it('saves the config', async () => {
@@ -379,14 +377,14 @@ describe('settings page', () => {
           expect(setConfig).toHaveBeenCalledWith(
             providers.find((p) => p.key === 'okta'),
             { ...oktaConfig, ...webConfig },
-            flows.find((f) => f.key === 'PKCE')
+            flows.find((f) => f.key === 'PKCE'),
           );
         });
       });
 
       describe('on mobile', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(true);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(true);
         });
 
         it('saves the config', async () => {
@@ -398,7 +396,7 @@ describe('settings page', () => {
           expect(setConfig).toHaveBeenCalledWith(
             providers.find((p) => p.key === 'okta'),
             oktaConfig,
-            undefined
+            undefined,
           );
         });
       });
@@ -414,7 +412,7 @@ describe('settings page', () => {
 
       describe('on web', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(false);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
         });
 
         it('saves the config', async () => {
@@ -445,14 +443,14 @@ describe('settings page', () => {
               scope: 'email offline',
               audience: 'people',
             },
-            flows.find((f) => f.key === 'PKCE')
+            flows.find((f) => f.key === 'PKCE'),
           );
         });
       });
 
       describe('on mobile', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(true);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(true);
         });
 
         it('saves the config', async () => {
@@ -482,7 +480,7 @@ describe('settings page', () => {
               scope: 'email offline',
               audience: 'people',
             },
-            undefined
+            undefined,
           );
         });
       });

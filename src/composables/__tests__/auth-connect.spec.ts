@@ -2,17 +2,16 @@ import { useAuthConfig } from '@/composables/auth-config';
 import { useAuthConnect } from '@/composables/auth-connect';
 import { useAuthFlows } from '@/composables/auth-flows';
 import { useAuthProviders } from '@/composables/auth-providers';
+import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { AuthConnect, AzureProvider, CognitoProvider, ProviderOptions } from '@ionic-enterprise/auth';
-import { isPlatform } from '@ionic/vue';
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('@capacitor/core');
 vi.mock('@capacitor/preferences');
 vi.mock('@ionic-enterprise/auth');
-vi.mock('@ionic/vue', async () => {
-  const actual = (await vi.importActual('@ionic/vue')) as any;
-  return { ...actual, isPlatform: vi.fn().mockReturnValue(true) };
-});
+
+(Capacitor.isNativePlatform as Mock).mockReturnValue(true);
 
 describe('auth connect', () => {
   let authResult: string | null;
@@ -295,7 +294,7 @@ describe('auth connect', () => {
   //       tested in the login
   describe('login', () => {
     beforeEach(() => {
-      (isPlatform as Mock).mockReturnValue(true);
+      (Capacitor.isNativePlatform as Mock).mockReturnValue(true);
       (AuthConnect.login as Mock).mockResolvedValue({
         accessToken: 'the-access-token',
         refreshToken: 'the-refresh-token',
@@ -371,7 +370,7 @@ describe('auth connect', () => {
 
       describe('on web', () => {
         beforeEach(() => {
-          (isPlatform as Mock).mockReturnValue(false);
+          (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
         });
 
         it('creates with Cognito', async () => {
@@ -587,7 +586,7 @@ describe('auth connect', () => {
     it('sets up AC for mobile', async () => {
       const { setConfig } = useAuthConnect();
       const { providers } = useAuthProviders();
-      (isPlatform as Mock).mockReturnValue(true);
+      (Capacitor.isNativePlatform as Mock).mockReturnValue(true);
       await setConfig(providers[3], opt);
       expect(AuthConnect.setup).toHaveBeenCalledTimes(1);
       expect(AuthConnect.setup).toHaveBeenCalledWith({
@@ -606,7 +605,7 @@ describe('auth connect', () => {
     it('sets up AC for web', async () => {
       const { setConfig } = useAuthConnect();
       const { providers } = useAuthProviders();
-      (isPlatform as Mock).mockReturnValue(false);
+      (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
       await setConfig(providers[3], opt);
       expect(AuthConnect.setup).toHaveBeenCalledTimes(1);
       expect(AuthConnect.setup).toHaveBeenCalledWith({
@@ -682,7 +681,7 @@ describe('auth connect', () => {
         const { setConfig } = useAuthConnect();
         const { providers } = useAuthProviders();
         const { flows } = useAuthFlows();
-        (isPlatform as Mock).mockReturnValue(false);
+        (Capacitor.isNativePlatform as Mock).mockReturnValue(false);
         await setConfig(
           providers[3],
           opt,

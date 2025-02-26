@@ -106,8 +106,9 @@
 import { useAuthConnect } from '@/composables/auth-connect';
 import { Flow } from '@/composables/auth-flows';
 import { Provider } from '@/composables/auth-providers';
+import { Capacitor } from '@capacitor/core';
 import { ProviderOptions } from '@ionic-enterprise/auth';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, onIonViewWillEnter, isPlatform } from '@ionic/vue';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, onIonViewWillEnter } from '@ionic/vue';
 import { ref } from 'vue';
 
 const config = ref<ProviderOptions>();
@@ -125,7 +126,7 @@ const { canRefresh, getAccessToken, getConfig, getFlow, getProvider, isAccessTok
   useAuthConnect();
 
 onIonViewWillEnter(async () => {
-  showFlow.value = isPlatform('hybrid');
+  showFlow.value = Capacitor.isNativePlatform();
   config.value = await getConfig();
   configStr.value = JSON.stringify(config.value, undefined, 2);
   flow.value = await getFlow();

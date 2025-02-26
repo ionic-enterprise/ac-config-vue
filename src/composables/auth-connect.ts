@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import {
   Auth0Provider,
@@ -10,7 +11,6 @@ import {
   OneLoginProvider,
   ProviderOptions,
 } from '@ionic-enterprise/auth';
-import { isPlatform } from '@ionic/vue';
 import { useAuthConfig } from './auth-config';
 import { Flow, useAuthFlows } from './auth-flows';
 import { Provider, useAuthProviders } from './auth-providers';
@@ -76,7 +76,7 @@ const initializeAuthResult = async (): Promise<void> => {
 };
 
 const setDefaultConfig = async (): Promise<void> => {
-  if (isPlatform('hybrid')) {
+  if (Capacitor.isNativePlatform()) {
     await setDefaultConfigMobile();
   } else {
     await setDefaultConfigWeb();
@@ -111,7 +111,7 @@ const setupAuthConnect = async (): Promise<void> => {
   const flow = await getFlow();
   const cfg: AuthConnectConfig = {
     logLevel: 'DEBUG',
-    platform: isPlatform('hybrid') ? 'capacitor' : 'web',
+    platform: Capacitor.isNativePlatform() ? 'capacitor' : 'web',
     ios: {
       webView: 'private',
     },

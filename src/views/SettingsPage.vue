@@ -119,13 +119,14 @@ import { useAuthConfig } from '@/composables/auth-config';
 import { useAuthConnect } from '@/composables/auth-connect';
 import { Flow, useAuthFlows } from '@/composables/auth-flows';
 import { Provider, useAuthProviders } from '@/composables/auth-providers';
+import { Capacitor } from '@capacitor/core';
 import { ProviderOptions } from '@ionic-enterprise/auth';
 import {
   IonButton,
   IonContent,
   IonHeader,
-  IonItem,
   IonInput,
+  IonItem,
   IonLabel,
   IonList,
   IonListHeader,
@@ -134,7 +135,6 @@ import {
   IonSelectOption,
   IonTitle,
   IonToolbar,
-  isPlatform,
   onIonViewDidEnter,
 } from '@ionic/vue';
 import { computed, ref } from 'vue';
@@ -158,12 +158,12 @@ const { isAuthenticated, getConfig, getFlow, getProvider, setConfig } = useAuthC
 const setIonicProvider = async (opt: ProviderOptions, provider: string, flow: string) => {
   const config: ProviderOptions = {
     ...opt,
-    ...(isPlatform('hybrid') ? {} : webConfig),
+    ...(Capacitor.isNativePlatform() ? {} : webConfig),
   };
   await setConfig(
     providers.find((p) => p.key === provider) as Provider,
     config,
-    isPlatform('hybrid') ? undefined : flows.find((f) => f.key === flow)
+    Capacitor.isNativePlatform() ? undefined : flows.find((f) => f.key === flow),
   );
   initCustomizableFields();
 };
@@ -174,7 +174,7 @@ const compareKVPair = (x: { key: string; value: any }, y: { key: string; value: 
 
 const initialize = async () => {
   disableEdits.value = await isAuthenticated();
-  showFlow.value = !isPlatform('hybrid');
+  showFlow.value = !Capacitor.isNativePlatform();
   await initCustomizableFields();
 };
 
@@ -212,7 +212,7 @@ const useCustomization = () => {
     discoveryUrl: discoveryUrl.value,
     scope: scope.value,
     audience: audience.value,
-    ...(isPlatform('hybrid') ? mobileConfig : webConfig),
+    ...(Capacitor.isNativePlatform() ? mobileConfig : webConfig),
   };
   return setConfig(provider.value as Provider, config, flow.value);
 };
